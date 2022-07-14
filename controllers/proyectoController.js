@@ -1,4 +1,5 @@
 import Proyecto from '../models/Proyecto.js'
+import Tarea from '../models/Tarea.js'
 
 const obtenerProyectos = async (req, res) => {
     const proyectos = await Proyecto.find().where('creador').equals(req.usuario)
@@ -21,27 +22,31 @@ const obtenerProyecto = async (req, res) => {
 
     const {id} = req.params 
     const proyecto = await Proyecto.findById(id)
-    //verificar que exista el usuario
+    //verificar el usuario
     if(!proyecto) {
         const error = new Error("No Encontrado")
         return res.status(404).json({msg: error.message})
     }
-    //identificar al usuario
+    //identificar el usuario
     if(proyecto.creador.toString() !== req.usuario._id.toString()) {
         const error = new Error("Acción No Válida")
         return res.status(401).json({ msg: error.message})
     }
+    //obtener todas las tareas del proyecto
+    const tareas = await Tarea.find().where("proyecto").equals(proyecto._id)
+    
+    res.json({proyecto, tareas,})
 }
 
 const editarProyecto = async (req, res) => {
     const {id} = req.params 
     const proyecto = await Proyecto.findById(id)
-    //verificar que exista el usuario
+    //verificar el usuario
     if(!proyecto) {
         const error = new Error("No Encontrado")
         return res.status(404).json({msg: error.message})
     }
-    //identificar al usuario
+    //identificar el usuario
     if(proyecto.creador.toString() !== req.usuario._id.toString()) {
         const error = new Error("Acción No Válida")
         return res.status(401).json({ msg: error.message})
@@ -64,12 +69,12 @@ const editarProyecto = async (req, res) => {
 const elinimarProyecto = async (req, res) => {
     const {id} = req.params 
     const proyecto = await Proyecto.findById(id)
-    //verificar que exista el usuario
+    //verificar el usuario
     if(!proyecto) {
         const error = new Error("No Encontrado")
         return res.status(404).json({msg: error.message})
     }
-    //identificar al usuario
+    //identificar el usuario
     if(proyecto.creador.toString() !== req.usuario._id.toString()) {
         const error = new Error("Acción No Válida")
         return res.status(401).json({ msg: error.message})
@@ -91,9 +96,6 @@ const eliminarColaborador = async (req, res) => {
 
 }
 
-const obtenerTareas = async (req, res) => {
-
-}
 
 
 export {
@@ -104,6 +106,4 @@ export {
     elinimarProyecto,
     agregarColaborador,
     eliminarColaborador,
-    obtenerTareas,
-    
 }
